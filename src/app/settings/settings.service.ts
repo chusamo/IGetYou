@@ -24,7 +24,7 @@ export class SettingsService {
       name: "",
       social: [],
     };
-    this.settings.name = window.localStorage.getItem("name") || "Default name";
+    this.settings.name = window.localStorage.getItem("name") || "";
     let social = window.localStorage.getItem("platforms");
     console.log(social);
     if (social != undefined) {
@@ -37,6 +37,9 @@ export class SettingsService {
     let json = {};
     let settings = this.getSettings();
     if (settings != undefined) {
+      if (settings.name == ""){
+        return JSON.stringify(json);
+      }
       json["name"] = settings.name;
       json["social"] = [];
       settings.social.forEach((element) => {

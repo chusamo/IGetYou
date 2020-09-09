@@ -7,9 +7,17 @@
 </ion-header>
 
 <ion-content [fullscreen]="true">
-  <div class="qr-center" align="center">
+  <div class="qr-center" align="center" *ngIf="qrData!='{}'; else voidSettings">
     <qr-code [value]="qrData" [size]="250"></qr-code>
   </div>
+
+  <ng-template #voidSettings>
+    <ion-text class="qr-center" align="center">
+      <p>Please go to settings,</p>
+      <p>set up a name and the Social platforms that you want</p>
+    </ion-text>
+  </ng-template>
+
   <ion-button class="scan-center" align="center" vertical="bottom" horizontal="center" (click)="scan()" color="secondary">
     Scan Code</ion-button>
 </ion-content>
