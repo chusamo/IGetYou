@@ -1,7 +1,9 @@
 import { Component } from "@angular/core";
 import { Router } from "@angular/router";
-import { SettingsService } from './settings.service'
-import { Settings } from './settings.model'
+import { SettingsService } from "./settings.service";
+import { Settings, Platform } from "./settings.model";
+import { ContactsService } from "../contacts/contacts.service";
+import { async } from "@angular/core/testing";
 @Component({
   selector: "app-tab3",
   templateUrl: "tab3.page.html",
@@ -9,16 +11,43 @@ import { Settings } from './settings.model'
 })
 export class Tab3Page {
   private settings: Settings;
-
-  constructor(private settingsService: SettingsService, private router: Router) {}
-  ngOnInit(){
-    this.settings = this.settingsService.getSettings()
+  constructor(
+    private settingsService: SettingsService,
+    private router: Router,
+    private contactsService: ContactsService
+  ) {
+  }
+  ngOnInit() {
+    this.settings = {
+      name: "",
+      social: [],
+    };
+    this.settings = this.settingsService.getSettings();
   }
   saveSettings(name) {
-    this.settingsService.saveName(name.value)
-    this.settings.name = name.value
+    this.settings.name = name.value;
+    this.settingsService.saveName(this.settings.name);
+    this.settingsService.saveSocialPlatform(this.settings.social);
   }
   addSocialPlatform(socialKey, socialValue) {
+    let required = false;
+    if (socialKey.value == "") {
+      socialKey.color = "danger";
+      required = true;
+    }
+    else {
+      socialKey.color = "";
+    }
+    if (socialValue.value == "") {
+      socialValue.color = "danger";
+      required = true;
+    }
+    else {
+      socialValue.color = "";
+    }
+    if (required) {
+      return;
+    }
     if (
       this.settings.social.find(
         (social) => social.platform === socialKey.value
@@ -32,7 +61,6 @@ export class Tab3Page {
       });
       socialKey.value = "";
       socialValue.value = "";
-      this.settingsService.saveSocialPlatform(this.settings.social);
     }
   }
 
@@ -42,5 +70,7 @@ export class Tab3Page {
     });
     this.settingsService.saveSocialPlatform(this.settings.social);
   }
-
+  delay(ms: number) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
 }

@@ -1,12 +1,13 @@
 import { Component } from "@angular/core";
 import { ContactsService } from "./contacts.service";
+import { Contact } from './contact.model'
 @Component({
   selector: "app-tab1",
   templateUrl: "tab1.page.html",
   styleUrls: ["tab1.page.scss"],
 })
 export class Tab1Page {
-  contacts = [];
+  contacts: Contact[];
   constructor(private contactsService: ContactsService) {}
 
   ngOnInit() {
@@ -15,10 +16,6 @@ export class Tab1Page {
 
   ionViewWillEnter(){
     this.contacts = this.contactsService.getContacts();
-    console.log(this.contacts);
   }
 
-  deleteContact() {
-    console.log("Eliminado");
-  }
 }
