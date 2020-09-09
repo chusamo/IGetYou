@@ -25,10 +25,14 @@ export class Tab2Page {
 
   ngOnInit() {
     this.qrData = this.settingsService.getQrData();
+    console.log(this.qrData == '{}')
+    console.log(this.qrData)
   }
 
   ionViewWillEnter() {
     this.qrData = this.settingsService.getQrData();
+    console.log(this.qrData != '{}')
+    console.log(this.qrData)
   }
   scan() {
     this.dataScanned = null;
