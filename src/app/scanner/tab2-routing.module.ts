@@ -8,13 +8,9 @@ const routes: Routes = [
     component: Tab2Page,
   },
   {
-    path: 'set-code',
-    loadChildren: () => import('./set-code/set-code.module').then( m => m.SetCodePageModule)
+    path: 'invalid',
+    loadChildren: () => import('./invalid/invalid.module').then( m => m.InvalidPageModule)
   },
-  {
-    path: 'scan-code',
-    loadChildren: () => import('./scan-code/scan-code.module').then( m => m.ScanCodePageModule)
-  }
 ];
 
 @NgModule({

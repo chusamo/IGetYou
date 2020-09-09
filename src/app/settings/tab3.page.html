@@ -6,33 +6,37 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
+<ion-content [fullscreen]="true" class="content">
   <ion-list lines="full">
     <ion-item>
-      <ion-label>Name</ion-label>
-      <ion-input type="text" #name></ion-input>
-    </ion-item>
-    <ion-item>
-      <ion-label>Social Platform</ion-label>
-      <ion-input placeholder="url of your facebook profile" type="text" #socialKey></ion-input>
-      <ion-label>Value</ion-label>
-      <ion-input placeholder="url of your facebook profile" type="text" #socialValue></ion-input>
-      <ion-button color="secondary" (click)="addSocialPlatform(socialKey, socialValue)">
-        <ion-icon name="add-outline"></ion-icon>
-      </ion-button>
+      <ion-label>Name:</ion-label>
+      <ion-input type="text" [ngModel]="settings.name" #name></ion-input>
     </ion-item>
   </ion-list>
   <ion-row>
     <ion-col>Social</ion-col>
     <ion-col>Value</ion-col>
   </ion-row>
-  <ion-row *ngFor="let social of settings.social">
+  <ion-row>
+    <ion-input placeholder="Facebook" type="text" #socialKey></ion-input>
+    <ion-input placeholder="Facebook Url" type="text" #socialValue></ion-input>
+    <ion-button color="secondary" size="small" position="end" (click)="addSocialPlatform(socialKey, socialValue)">
+      <ion-icon name="add-outline"></ion-icon>
+    </ion-button>
+  </ion-row>
+  <ion-row *ngFor="let social of settings.social;">
       <ion-col>{{social.platform}}</ion-col>
       <ion-col>{{social.value}}</ion-col>
       <ion-button color="danger" size="small" position="end" (click)="deleteSocialPlatoform(social.platform)">
         <ion-icon name="close-outline"></ion-icon>
       </ion-button>
   </ion-row>
+
+  <ion-fab horizontal="end" vertical="center">
+    <ion-fab-button color="secondary" (click)="saveSettings(name)">
+      <ion-icon name="save-outline"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
 
 
 </ion-content>
