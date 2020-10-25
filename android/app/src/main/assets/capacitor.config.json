@@ -20,5 +20,9 @@
       "SplashScreenDelay": "3000"
     }
   },
-  "linuxAndroidStudioPath": "/opt/android-studio/bin/studio.sh"
+  "linuxAndroidStudioPath": "/opt/android-studio/bin/studio.sh",
+  "server": {
+    "url": "http://localhost:8100",
+    "cleartext": true
+  }
 }
