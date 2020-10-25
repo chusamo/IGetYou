@@ -22,17 +22,12 @@ export class Tab2Page {
     private contactsService: ContactsService,
     private router: Router
   ) {}
-
   ngOnInit() {
     this.qrData = this.settingsService.getQrData();
-    console.log(this.qrData == '{}')
-    console.log(this.qrData)
-  }
 
+  }
   ionViewWillEnter() {
     this.qrData = this.settingsService.getQrData();
-    console.log(this.qrData != '{}')
-    console.log(this.qrData)
   }
   scan() {
     this.dataScanned = null;
@@ -42,13 +37,15 @@ export class Tab2Page {
         this.dataScanned = barcodeData.text;
         this.processScan(barcodeData.text);
       })
-      .catch((err) => {
-      });
+      .catch((err) => {});
+  }
+  scan_web() {
+    window.open(this.settingsService.getQrData(), '_blank');
   }
   processScan(data) {
     let json = {};
     try {
-      let json = JSON.parse(data);
+      json = JSON.parse(data);
     } catch {
       this.router.navigate(["/tabs/scanner/invalid"]);
     }
