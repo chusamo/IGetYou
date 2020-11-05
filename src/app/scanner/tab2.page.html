@@ -7,10 +7,9 @@
 </ion-header>
 
 <ion-content [fullscreen]="true">
-  <div class="qr-center" align="center" *ngIf="qrData!='{}'; else voidSettings">
+  <div class="qr-center" align="center" *ngIf="qrData!=''; else voidSettings">
     <qr-code [value]="qrData" [size]="250"></qr-code>
   </div>
-
   <ng-template #voidSettings>
     <ion-text class="qr-center" align="center">
       <p>Please go to settings,</p>

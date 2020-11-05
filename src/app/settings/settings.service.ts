@@ -38,6 +38,10 @@ export class SettingsService {
     return this.settings;
   }
 
+  deleteSettings(){
+    window.localStorage.removeItem("name");
+    window.localStorage.removeItem("platforms");
+  }
   generateToken() {
     var text = "";
     var possible =
@@ -77,6 +81,12 @@ export class SettingsService {
     return window.localStorage.getItem("token");
   }
   getQrData() {
-    return this.website + "?token=" + this.getToken();
+    let token = this.getToken();
+    console.log(token)
+    let qrData = "";
+    if (token != null && token != ""){
+      qrData = this.website + "?token=" + this.getToken();
+    }
+    return qrData
   }
 }
