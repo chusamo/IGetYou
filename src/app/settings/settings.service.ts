@@ -1,20 +1,41 @@
 import { Injectable } from "@angular/core";
 import { Settings } from "./settings.model";
+import { AlertController } from '@ionic/angular';
+import {
+  HttpClient,
+  HttpHeaders,
+  JsonpClientBackend,
+} from "@angular/common/http";
+import { tokenName } from '@angular/compiler';
 @Injectable({
   providedIn: "root",
 })
 export class SettingsService {
   private settings: Settings;
   private website = "http://www.igetyou.website/contact";
-  constructor() {}
+  private saved = false;
+  constructor(public http: HttpClient,   public alertController: AlertController) {}
 
+  markAsSaved(saved) {
+    this.saved = saved;
+    window.localStorage.setItem("saved", saved);
+  }
+  IsSaved() {
+    window.localStorage.getItem("saved") || false;
+  }
+  canShare(){
+    return this.getName() != "";
+  }
   saveName(name) {
     this.settings.name = name;
     window.localStorage.setItem("name", name);
   }
+  getName(){
+    return window.localStorage.getItem("name") || "";
+  }
   saveToken(token) {
-    console.log("guardamos token")
-    console.log(token)
+    console.log("guardamos token");
+    console.log(token);
     window.localStorage.setItem("token", token);
   }
   saveSocialPlatform(social) {
@@ -38,7 +59,7 @@ export class SettingsService {
     return this.settings;
   }
 
-  deleteSettings(){
+  deleteSettings() {
     window.localStorage.removeItem("name");
     window.localStorage.removeItem("platforms");
   }
@@ -54,13 +75,13 @@ export class SettingsService {
 
   getJSON() {
     let json = {};
-    console.log("EJECUTAMOS GET SETTINGS")
+    console.log("EJECUTAMOS GET SETTINGS");
     let settings = this.getSettings();
-    console.log("GET JSON")
-    console.log(settings)
+    console.log("GET JSON");
+    console.log(settings);
     if (settings != undefined) {
       if (settings.name == "") {
-        return json;
+        return void {};
       }
       json["name"] = settings.name;
       json["token"] = settings.token;
@@ -77,16 +98,63 @@ export class SettingsService {
     }
     return JSON.stringify(json);
   }
-  getToken(){
+  getToken() {
     return window.localStorage.getItem("token");
   }
-  getQrData() {
-    let token = this.getToken();
-    console.log(token)
+  getQrData(type="token") {
     let qrData = "";
-    if (token != null && token != ""){
+    if (type == "token"){
       qrData = this.website + "?token=" + this.getToken();
     }
-    return qrData
+    else if (type == "json"){
+      let json = this.getJSON();
+      if (json){
+        qrData = json;
+      }
+    }
+    console.log(qrData);
+    return qrData;
+  }
+
+  sendSaveRequest(json, token, showAlert=true, generateQR=false) {
+    // let headers = new Headers().set("'Content-Type", "application/json")
+    console.log("HOlA");
+    this.http.post("http://igetyou.website/save.php", json).subscribe(
+      (data) => {
+        if (data != null && data["action"] == "update_token") {
+          this.settings.token = this.generateToken();
+          this.saveToken(token);
+          console.log("ACTUALIZAMOS TOKEN");
+          json = JSON.parse(json);
+          json["token"] = this.settings.token;
+          this.sendSaveRequest(JSON.stringify(json), token);
+          return ;
+        }
+        if (showAlert){
+          this.presentAlert("Information", "Your data has been saved!")
+        }
+      },
+      (error) => {
+        console.log(error)
+        if (showAlert){
+          this.presentAlert("Information", "There is some connection problems. "+
+          "You QR will be generated offline, only people with this app can scan it")
+        }
+      }
+    );
+  }
+  sendDeleteRequest(json) {
+    this.http.post("http://igetyou.website/delete.php", json).subscribe();
+  }
+
+
+  async presentAlert(title, msg) {
+    const alert = await this.alertController.create({
+      header: title,
+      message: msg,
+      buttons: ["OK"],
+    });
+
+    await alert.present();
   }
 }
