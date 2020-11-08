@@ -7,15 +7,24 @@
 </ion-header>
 
 <ion-content [fullscreen]="true">
-  <div class="qr-center" align="center" *ngIf="qrData!=''; else voidSettings">
-    <qr-code [value]="qrData" [size]="250"></qr-code>
-  </div>
-  <ng-template #voidSettings>
-    <ion-text class="qr-center" align="center">
+
+  <div class="qr-center" align="center" *ngIf="shareQR==true">
+    <qr-code *ngIf="qrData!='';" [value]="qrData" [size]="250"></qr-code>
+    <ion-text *ngIf="qrData=='';" class="qr-center" align="center">
       <p>Please go to settings,</p>
       <p>set up a name and the Social platforms that you want</p>
     </ion-text>
-  </ng-template>
-    <ion-button  class="scan-center" align="center" vertical="bottom" horizontal="center" (click)="scan_web()" color="secondary">
+  </div>
+  <div *ngIf="shareQR==false;">
+    <ion-button class="share-center" align="center" vertical="bottom" horizontal="center" (click)="share()" color="secondary">
+      Share Code</ion-button>
+    <ion-button class="scan-center" align="center" vertical="bottom" horizontal="center" (click)="scan_web()"
+      color="secondary">
       Scan Code</ion-button>
+  </div>
+  <div *ngIf="shareQR==true;">
+    <ion-button class="share-center" align="center" vertical="bottom" horizontal="center" (click)="shareQR=false;" color="secondary">
+      Back</ion-button>
+  </div>
+
 </ion-content>

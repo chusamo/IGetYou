@@ -2,7 +2,11 @@ import { Component } from "@angular/core";
 import { SettingsService } from "../settings/settings.service";
 import { ContactsService } from "../contacts/contacts.service";
 import { Router } from "@angular/router";
-
+import {
+  HttpClient,
+  HttpHeaders,
+  JsonpClientBackend,
+} from "@angular/common/http";
 import {
   BarcodeScanner,
   BarcodeScannerOptions,
@@ -16,18 +20,26 @@ import {
 export class Tab2Page {
   private dataScanned: any;
   private qrData: any;
+  private shareQR: any;
   constructor(
+    public http: HttpClient,
     private barcodeScanner: BarcodeScanner,
     private settingsService: SettingsService,
     private contactsService: ContactsService,
-    private router: Router
+    private router: Router,
   ) {}
   ngOnInit() {
-    this.qrData = this.settingsService.getQrData();
+    this.shareQR = false
+    this.qrData = ''
 
   }
   ionViewWillEnter() {
-    this.qrData = this.settingsService.getQrData();
+    this.shareQR = false
+    this.qrData = ''
+    // this.qrData = this.settingsService.getQrData();
+  }
+  share(){
+    this.sendCheckRequest();
   }
   scan() {
     this.dataScanned = null;
@@ -65,5 +77,59 @@ export class Tab2Page {
 
   checkValid(json) {
     return "name" in json && "social" in json;
+  }
+
+
+ForceSaveRequest(json){
+// let headers = new Headers().set("'Content-Type", "application/json")
+  this.http.post("http://igetyou.website/save.php", json).subscribe(
+    (data) => {
+      if (data != null && data["action"] == "update_token") {
+        let token = this.settingsService.generateToken();
+        this.settingsService.saveToken(token);
+        this.ForceSaveRequest(JSON.stringify(json));
+        return ;
+      }
+      console.log("OBTENEMOS QR DESDE EL TOKEN UNA VEZ GUARDADO")
+      this.qrData = this.settingsService.getQrData("token")
+      this.shareQR = true;
+    },
+    (error) => {
+      console.log("OBTENEMOS QR  DESDE JSON")
+      this.settingsService.presentAlert(
+        "Information", "There is a problem with the connection. You can share this code <strong>offline</strong>" +
+        " with those <strong>who have downloaded</strong> this app")
+      this.qrData = this.settingsService.getQrData("json")
+      this.shareQR = true;
+      
+    }
+);
+  }
+  sendCheckRequest() {
+    let tokenValue = this.settingsService.getToken();
+    console.log(tokenValue)
+    let nameValue = this.settingsService.getName();
+    this.http.post("http://igetyou.website/check.php", JSON.stringify({token: tokenValue, name: nameValue})).subscribe(
+      data => {
+        console.log("OBTENDO EL QR DESDE EL TOKEN PORQUE YA EXISTE")
+        this.qrData = this.settingsService.getQrData("token")
+        this.shareQR = true;
+      },
+      error => {
+        if (this.settingsService.canShare()){
+          let token = this.settingsService.getToken()
+          let json = this.settingsService.getJSON()
+          this.ForceSaveRequest(json);
+        }
+        else{
+          this.qrData = ''
+          this.shareQR = true
+        }
+
+      }
+    );
+  }
+  check(){
+    this.sendCheckRequest()
   }
 }
