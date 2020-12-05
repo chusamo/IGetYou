@@ -11,12 +11,26 @@
 </ion-header>
 
 <ion-content>
-  <ion-grid>
-    <ion-row *ngFor="let social of contact.social">
-      <ion-col size="4">
-        <ion-label>{{social.platform}}</ion-label>
-      </ion-col>
-      <ion-col>
+  <ion-item>
+    <ion-icon name="call" style="width: 10%;text-align: left;"></ion-icon>
+    <p style="text-align: right;">{{contact.phone}}</p>
+  </ion-item>
+  <ion-item>
+    <ion-icon name="mail" style="width: 10%;text-align: left;"></ion-icon>
+    <p>{{contact.email}}</p>
+  </ion-item>
+  <ion-item>
+    <ion-icon name="text" style="width: 10%;text-align: left; padding-left: 2%;"></ion-icon>
+    <p style="padding-left: 2%;">{{contact.description}}</p>
+  </ion-item>
+  <ion-grid style="margin-top:2%;">
+    <ion-row> 
+      <ion-col style="text-align: center;"><ion-icon name="people"></ion-icon></ion-col>
+      <ion-col style="text-align: center;"><ion-icon name="globe"></ion-icon></ion-col>
+    </ion-row>
+    <ion-row *ngFor="let social of contact.social" style="margin-bottom:2%;">
+      <ion-col style="text-align: center;">{{social.platform}}</ion-col>
+      <ion-col style="text-align: center;">
         <ion-router-link href="{{social.value}}">{{social.value}}</ion-router-link>
       </ion-col>
     </ion-row>

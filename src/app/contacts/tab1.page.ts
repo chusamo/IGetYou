@@ -1,6 +1,7 @@
 import { Component } from "@angular/core";
 import { ContactsService } from "./contacts.service";
 import { Contact } from './contact.model'
+
 @Component({
   selector: "app-tab1",
   templateUrl: "tab1.page.html",

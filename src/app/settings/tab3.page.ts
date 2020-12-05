@@ -4,6 +4,9 @@ import { AlertController } from '@ionic/angular';
 import { SettingsService } from "./settings.service";
 import { Settings, Platform } from "./settings.model";
 import { ContactsService } from "../contacts/contacts.service";
+import { ImagePicker, ImagePickerOptions } from '@ionic-native/image-picker/ngx';
+import { Crop, CropOptions } from '@ionic-native/crop/ngx';
+import { File } from '@ionic-native/file/ngx';
 
 @Component({
   selector: "app-tab3",
@@ -11,27 +14,86 @@ import { ContactsService } from "../contacts/contacts.service";
   styleUrls: ["tab3.page.scss"],
 })
 export class Tab3Page {
+
+  croppedImagepath = "";
+  isLoading = false;
+
+  imagePickerOptions: ImagePickerOptions = {
+    maximumImagesCount: 1,
+    quality: 50,
+  };
+
+  cropOptions: CropOptions = {
+    quality: 50
+  }
   private settings: Settings;
   constructor(
     private settingsService: SettingsService,
     private router: Router,
     private contactsService: ContactsService,
-    public alertController: AlertController
+    public alertController: AlertController,
+    private crop: Crop,
+    private imagePicker: ImagePicker,
+    private file: File
   ) {}
   ngOnInit() {
     this.settings = {
       name: "",
       token: "",
       social: [],
+      phone: "",
+      email: "",
+      description: "",
     };
     this.settings = this.settingsService.getSettings();
     if (this.settings.token == undefined || this.settings.token == "") {
       this.settings.token = this.settingsService.generateToken();
+      this.settingsService.saveToken(this.settings.token);
     }
   }
 
+  pickImage() {
+    this.imagePicker.getPictures(this.imagePickerOptions).then((results) => {
+      for (var i = 0; i < results.length; i++) {
+        this.cropImage(results[i]);
+      }
+    }, (err) => {
+      alert(err);
+    });
+  }
 
-  saveSettings(name) {
+  cropImage(imgPath) {
+    this.crop.crop(imgPath, this.cropOptions)
+      .then(
+        newPath => {
+          this.showCroppedImage(newPath.split('?')[0])
+        },
+        error => {
+          // alert('Error cropping image' + error);
+        }
+      );
+  }
+
+  showCroppedImage(ImagePath) {
+    this.isLoading = true;
+    var copyPath = ImagePath;
+    let fileName = copyPath.split('/').pop();
+    let filePath = copyPath.replace(fileName, '');;
+    fileName = fileName.split('?')[0];   // --> This Line is added to make it work in case of Image...
+    alert(fileName)
+    alert(filePath)
+    this.file.readAsDataURL(filePath, fileName).then((data) => {
+      alert("ENTRA DENTRO DEL READ DATA")
+      this.croppedImagepath = data;
+      this.isLoading = false
+    }).catch(
+      err => { 
+        alert("ERROR")
+      });
+  }
+
+
+  saveSettings(name, phone, email, description) {
     if (name.value == ""){
       this.settingsService.presentAlert('Alert', 'You must write at least a name.')
       return;
@@ -39,11 +101,17 @@ export class Tab3Page {
     if (name.value != undefined){
       this.settings.name = name.value;
     }
+
     this.settingsService.saveName(this.settings.name);
-    this.settingsService.saveToken(this.settings.token);
+    this.settings.phone = phone.value;
+    this.settingsService.savePhone(phone.value);
+    this.settings.email = email.value;
+    this.settingsService.saveEmail(email.value);
+    this.settings.description = description.value;
+    this.settingsService.saveDescription(description.value);
     this.settingsService.saveSocialPlatform(this.settings.social);
     let json = this.settingsService.getJSON();
-    let request = this.settingsService.sendSaveRequest(json, this.settings.token)
+    let request = this.settingsService.sendSaveRequest(json, this.settingsService.getToken())
   }
 
   async deleteAlert() {
@@ -72,6 +140,9 @@ export class Tab3Page {
   deleteSettings(){
     let oldName = this.settings.name
     this.settings.name = ""
+    this.settings.phone = ""
+    this.settings.email = ""
+    this.settings.description = ""
     this.settings.social = []
     this.settingsService.deleteSettings()
     this.settingsService.sendDeleteRequest(JSON.stringify(
