@@ -5,5 +5,8 @@ export interface Platform {
 export interface Settings {
     name: string,
     token: string,
-    social: Platform[]
+    social: Platform[],
+    phone: string,
+    description: string,
+    email: string,
 }

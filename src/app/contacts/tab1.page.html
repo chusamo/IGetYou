@@ -6,7 +6,7 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
+<ion-content [fullscreen]="true" [scrollEvents]="true">
   <ion-list>
     <ion-item *ngFor="let contact of contacts" [routerLink]="[contact.id]">
       <ion-label>{{contact.name}}</ion-label>

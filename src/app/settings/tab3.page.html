@@ -3,46 +3,77 @@
     <ion-title>
       Settings
     </ion-title>
+    <ion-button slot="end" fill="clear" color="light" (click)="deleteAlert()">
+      <ion-icon name="trash-outline"></ion-icon>
+    </ion-button>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true" class="content">
+  <!-- <ion-avatar [src]="croppedImagepath">
+    <ion-button (click)="pickImage()">
+      +
+    </ion-button>
+  </ion-avatar> -->
+
+  <h5 *ngIf="croppedImagepath.length">Cropped Image</h5>
+
+  <p *ngIf="isLoading">Loading ...</p>
+
+  <img [src]="croppedImagepath" />
+
   <ion-list lines="full">
     <ion-item>
-      <ion-label>Name:</ion-label>
-      <ion-input type="text" [ngModel]="settings.name" #name></ion-input>
+      <ion-icon name="person" style="width: 10%;text-align: left;"></ion-icon>
+      <ion-input type="text" [ngModel]="settings.name" #name placeholder="Your Name"></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-icon name="call" style="width: 10%;text-align: left;"></ion-icon>
+      <ion-input type="text" [ngModel]="settings.phone" #phone placeholder="+1 123 456 789"></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-icon name="mail" style="width: 10%;text-align: left;"></ion-icon>
+      <ion-input type="text" [ngModel]="settings.email" #email placeholder="example@example.com"></ion-input>
+    </ion-item>
+    <ion-item style="height:20%">
+      <ion-icon name="text" style="width: 10%;text-align: left; padding-top: 4%;"></ion-icon>
+      <ion-textarea style="height:20%" placeholder="Brief text that you want to share. Máximum 500 characters"
+        [ngModel]="settings.description" #description></ion-textarea>
     </ion-item>
   </ion-list>
-  <ion-row>
-    <ion-col>Social</ion-col>
-    <ion-col>Value</ion-col>
-  </ion-row>
-  <ion-row>
-    <ion-input placeholder="Facebook" type="text" #socialKey></ion-input>
-    <ion-input placeholder="Facebook Url" type="text" #socialValue></ion-input>
-    <ion-button color="secondary" size="small" position="end" (click)="addSocialPlatform(socialKey, socialValue)">
-      <ion-icon name="add-outline"></ion-icon>
-    </ion-button>
-  </ion-row>
-  <ion-row *ngFor="let social of settings.social;">
-      <ion-col>{{social.platform}}</ion-col>
-      <ion-col>{{social.value}}</ion-col>
+  <ion-content [scrollEvents]="true">
+
+    <ion-row style="margin-top: 2%;">
+      <ion-col style="text-align: center;">
+        <ion-icon name="people"></ion-icon>
+      </ion-col>
+      <ion-col style="text-align: center;">
+        <ion-icon name="globe"></ion-icon>
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-input style="text-align: center;" placeholder="Facebook" type="text" #socialKey></ion-input>
+      <ion-input style="text-align: center;" placeholder="https://facebook.com/your_profile" type="text" #socialValue>
+      </ion-input>
+      <ion-button color="secondary" size="small" position="end" (click)="addSocialPlatform(socialKey, socialValue)">
+        <ion-icon name="add-outline"></ion-icon>
+      </ion-button>
+    </ion-row>
+    <ion-row *ngFor="let social of settings.social;" style="margin-bottom: 2%;">
       <ion-button color="danger" size="small" position="end" (click)="deleteSocialPlatoform(social.platform)">
         <ion-icon name="close-outline"></ion-icon>
       </ion-button>
-  </ion-row>
-
-  <ion-fab horizontal="end" vertical="center">
-    <ion-fab-button color="secondary" (click)="saveSettings(name)">
+      <ion-col style="text-align: center;">{{social.platform}}</ion-col>
+      <ion-col style="text-align: center;">{{social.value}}</ion-col>
+      <ion-button color="danger" size="small" position="end" (click)="deleteSocialPlatoform(social.platform)">
+        <ion-icon name="close-outline"></ion-icon>
+      </ion-button>
+    </ion-row>
+  </ion-content>
+  <ion-fab horizontal="end" style="position:fixed; margin-bottom:2%; margin-right:2%;" vertical="bottom">
+    <ion-fab-button color="secondary" (click)="saveSettings(name, phone, email, description)">
       <ion-icon name="save-outline"></ion-icon>
-    </ion-fab-button>
-    <ion-fab-button color="danger" (click)="deleteAlert()">
-      <ion-icon name="save-outline"></ion-icon>
-    </ion-fab-button>
-    <ion-fab-button color="danger" (click)="check()">
-      CHECK
     </ion-fab-button>
   </ion-fab>
-
 
 </ion-content>

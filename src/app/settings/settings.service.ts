@@ -12,7 +12,7 @@ import { tokenName } from '@angular/compiler';
 })
 export class SettingsService {
   private settings: Settings;
-  private website = "http://www.igetyou.website/contact";
+  public website = "http://www.icatchyou.info";
   private saved = false;
   constructor(public http: HttpClient,   public alertController: AlertController) {}
 
@@ -38,6 +38,15 @@ export class SettingsService {
     console.log(token);
     window.localStorage.setItem("token", token);
   }
+  saveEmail(email) {
+    window.localStorage.setItem("email", email)
+  }
+  savePhone(phone) {
+    window.localStorage.setItem("phone", phone)
+  }
+  saveDescription(description) {
+    window.localStorage.setItem("description", description)
+  }
   saveSocialPlatform(social) {
     this.settings.social = social;
     let socialArray = social.map((e) => JSON.stringify(e));
@@ -49,8 +58,14 @@ export class SettingsService {
       name: "",
       token: "",
       social: [],
+      phone: "",
+      email: "",
+      description: "",
     };
     this.settings.name = window.localStorage.getItem("name") || "";
+    this.settings.phone = window.localStorage.getItem("phone") || "";
+    this.settings.email = window.localStorage.getItem("email") || "";
+    this.settings.description = window.localStorage.getItem("description") || "";
     let social = window.localStorage.getItem("platforms");
     if (social != undefined) {
       this.settings.social = eval("[" + social + "]");
@@ -61,16 +76,21 @@ export class SettingsService {
 
   deleteSettings() {
     window.localStorage.removeItem("name");
+    window.localStorage.removeItem("phone");
+    window.localStorage.removeItem("email");
+    window.localStorage.removeItem("description");
     window.localStorage.removeItem("platforms");
   }
   generateToken() {
     var text = "";
     var possible =
       "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-
-    for (var i = 0; i < 32; i++)
+    var d = new Date();
+    var n = d.getMilliseconds();
+    for (var i = 0; i < 36; i++)
       text += possible.charAt(Math.floor(Math.random() * possible.length));
-    return text;
+    console.log(text + String(n))
+    return text + String(n);
   }
 
   getJSON() {
@@ -85,6 +105,9 @@ export class SettingsService {
       }
       json["name"] = settings.name;
       json["token"] = settings.token;
+      json["phone"] = settings.phone;
+      json["email"] = settings.email;
+      json["description"] = settings.description;
       json["social"] = [];
       settings.social.forEach((element) => {
         json["social"].push(
@@ -104,7 +127,7 @@ export class SettingsService {
   getQrData(type="token") {
     let qrData = "";
     if (type == "token"){
-      qrData = this.website + "?token=" + this.getToken();
+      qrData = this.website + "/contact?token=" + this.getToken();
     }
     else if (type == "json"){
       let json = this.getJSON();
@@ -119,11 +142,12 @@ export class SettingsService {
   sendSaveRequest(json, token, showAlert=true, generateQR=false) {
     // let headers = new Headers().set("'Content-Type", "application/json")
     console.log("HOlA");
-    this.http.post("http://igetyou.website/save.php", json).subscribe(
+    console.log(json)
+    this.http.post("http://icatchyou.info/save.php", json).subscribe(
       (data) => {
         if (data != null && data["action"] == "update_token") {
           this.settings.token = this.generateToken();
-          this.saveToken(token);
+          this.saveToken(this.settings.token);
           console.log("ACTUALIZAMOS TOKEN");
           json = JSON.parse(json);
           json["token"] = this.settings.token;
@@ -131,10 +155,12 @@ export class SettingsService {
           return ;
         }
         if (showAlert){
+          console.log(data)
           this.presentAlert("Information", "Your data has been saved!")
         }
       },
       (error) => {
+        console.log("ENTRA ERROR GUARDAR DATOS")
         console.log(error)
         if (showAlert){
           this.presentAlert("Information", "There is some connection problems. "+
@@ -144,7 +170,14 @@ export class SettingsService {
     );
   }
   sendDeleteRequest(json) {
-    this.http.post("http://igetyou.website/delete.php", json).subscribe();
+    this.http.post("http://icatchyou.info/delete.php", json).subscribe(
+      (data) =>{
+        console.log(data)
+      },
+      (error) => {
+        console.log(error)
+      }
+    );
   }
 
 

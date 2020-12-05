@@ -41,6 +41,8 @@ export class Tab2Page {
   share(){
     this.sendCheckRequest();
   }
+  scan_test(){
+    this.processScan(this.settingsService.getQrData())}
   scan() {
     this.dataScanned = null;
     this.barcodeScanner
@@ -54,25 +56,44 @@ export class Tab2Page {
   scan_web() {
     window.open(this.settingsService.getQrData(), '_blank');
   }
-  processScan(data) {
-    let json = {};
-    try {
-      json = JSON.parse(data);
-    } catch {
-      this.router.navigate(["/tabs/scanner/invalid"]);
-    }
-    if (!this.checkValid(json)) {
+  _processScan(data){
+    if (!this.checkValid(data)) {
       // redirigir a pestanya de error
       this.router.navigate(["/tabs/scanner/invalid"]);
     } else {
       // agregar contacto
-      let idContact = this.contactsService.addContact(
-        json["name"],
-        json["social"]
-      );
+      let idContact = this.contactsService.addContact(data);
       let link = "/tabs/contacts/" + idContact;
       this.router.navigate([link]);
     }
+  }
+  processScan(data) {
+    let json = {};
+    // Check if is a url
+    if (data.includes("token=")) {
+      let token = data.split("token=")[1];
+      let url = this.settingsService.website + "/get.php?token=" + token;
+      this.http.get(url).subscribe(
+        (response) => {
+          response['social'] = JSON.parse(response['social'])
+          this._processScan(response)
+        },
+        (error) => {
+          console.log("ENTRA EN ERROR AL OBTENER DATOS")
+          console.log(error)
+          this.router.navigate(["/tabs/scanner/invalid"]);
+        }
+      )
+    }
+    else{
+      try {
+        json = JSON.parse(data);
+        this._processScan(data)
+      } catch {
+        this.router.navigate(["/tabs/scanner/invalid"]);
+      }
+    }
+   
   }
 
   checkValid(json) {
@@ -82,7 +103,7 @@ export class Tab2Page {
 
 ForceSaveRequest(json){
 // let headers = new Headers().set("'Content-Type", "application/json")
-  this.http.post("http://igetyou.website/save.php", json).subscribe(
+  this.http.post("http://icatchyou.info/save.php", json).subscribe(
     (data) => {
       if (data != null && data["action"] == "update_token") {
         let token = this.settingsService.generateToken();
@@ -108,8 +129,13 @@ ForceSaveRequest(json){
   sendCheckRequest() {
     let tokenValue = this.settingsService.getToken();
     console.log(tokenValue)
+    if (tokenValue == null){
+      this.qrData = ''
+      this.shareQR = true
+      return
+    }
     let nameValue = this.settingsService.getName();
-    this.http.post("http://igetyou.website/check.php", JSON.stringify({token: tokenValue, name: nameValue})).subscribe(
+    this.http.post("http://icatchyou.info/check.php", JSON.stringify({token: tokenValue, name: nameValue})).subscribe(
       data => {
         console.log("OBTENDO EL QR DESDE EL TOKEN PORQUE YA EXISTE")
         this.qrData = this.settingsService.getQrData("token")
